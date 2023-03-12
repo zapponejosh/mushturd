@@ -1,9 +1,9 @@
 package handlers
 
 import (
-	"fmt"
 	"mushturd/pkg/scraper"
 	"net/http"
+	"sort"
 
 	"mushturd/pkg/render"
 )
@@ -19,10 +19,11 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		Position   int
 		PointValue int
 		Rookie     bool
+		Status     string
 	}
 
 	type User struct {
-		Picks      []Pick
+		Picks      []*Pick
 		Name       string
 		PointTotal int
 	}
@@ -37,36 +38,39 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		pk.Bib = m.Bib
 		pk.Name = m.Name
 		pk.Position = m.CurrentPos
+		pk.Status = m.Status
 		// inverse of position 1st place = 33 points plus 5 for rookie?
 		pk.PointValue = 33 - m.CurrentPos + 1 // calc rookie after
 		pk.Rookie = m.Rookie
-		if m.Rookie {
+		if m.Rookie && m.Status != "Scratched" {
 			if m.CurrentPos < topRookie.CurrentPos {
 				topRookie = m
 			}
+		}
+		if pk.Status == "Scratched" {
+			pk.PointValue = 0
+			pk.Position = 100
 		}
 		mushersAsPicks[m.Bib] = pk
 	}
 	rookieOfYear := mushersAsPicks[topRookie.Bib]
 	rookieOfYear.PointValue += 5
-	fmt.Println("Adding rookie of year points")
 	mushersAsPicks[rookieOfYear.Bib] = rookieOfYear
 	// find pick bib in data and attach position and point value
 
-	// TODO need to adjust this to be pointer to user so I can modify in range loop
-	PickData := []User{
+	PickData := []*User{
 		{
 			Name: "Josh",
-			Picks: []Pick{
+			Picks: []*Pick{
 				{Bib: 14},
+				{Bib: 19, Rookie: true},
 				{Bib: 5},
 				{Bib: 20},
-				{Bib: 19, Rookie: true},
 			},
 		},
 		{
 			Name: "Chelsea",
-			Picks: []Pick{
+			Picks: []*Pick{
 				{Bib: 26},
 				{Bib: 8},
 				{Bib: 28},
@@ -75,7 +79,7 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		},
 		{
 			Name: "JoDee",
-			Picks: []Pick{
+			Picks: []*Pick{
 				{Bib: 15},
 				{Bib: 2},
 				{Bib: 16},
@@ -84,7 +88,7 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		},
 		{
 			Name: "Marissa",
-			Picks: []Pick{
+			Picks: []*Pick{
 				{Bib: 4},
 				{Bib: 6},
 				{Bib: 25},
@@ -93,7 +97,7 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		},
 		{
 			Name: "Bill",
-			Picks: []Pick{
+			Picks: []*Pick{
 				{Bib: 33},
 				{Bib: 23},
 				{Bib: 9},
@@ -102,7 +106,7 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		},
 		{
 			Name: "Gigi",
-			Picks: []Pick{
+			Picks: []*Pick{
 				{Bib: 14},
 				{Bib: 31},
 				{Bib: 26},
@@ -123,8 +127,23 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		u.PointTotal = points
-		fmt.Printf("%s: %d", u.Name, u.PointTotal)
+
+		sort.Slice(u.Picks, func(i, j int) bool {
+
+			if u.Picks[i].Rookie && !u.Picks[j].Rookie {
+				return false
+			} else {
+				if u.Picks[i].Position < u.Picks[j].Position {
+					return true
+				} else {
+					return false
+				}
+			}
+		})
 	}
 
-	render.RenderTemplate(w, "picks.gohtml", nil)
+	sort.Slice(PickData, func(i, j int) bool {
+		return PickData[i].PointTotal > PickData[j].PointTotal
+	})
+	render.RenderTemplate(w, "picks.gohtml", PickData)
 }

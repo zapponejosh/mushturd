@@ -1,7 +1,7 @@
 package scraper
 
 import (
-	"fmt"
+	"log"
 	"strconv"
 	"strings"
 
@@ -30,7 +30,7 @@ type Musher struct {
 
 func Scraper() []Musher {
 	var musherSlice []Musher
-	fmt.Println("Running scraper")
+	log.Println("Running scraper")
 	c := colly.NewCollector(
 		// Visit only domains: https://iditarod.com/
 		colly.AllowedDomains("iditarod.com"),
@@ -112,14 +112,14 @@ func Scraper() []Musher {
 					m.Speed = float32(num)
 				// 8 hour rest complete
 				case 13:
-					if len(col.Children().Nodes) > 1 {
-						fmt.Println("8 hour complete")
-					}
+					// if len(col.Children().Nodes) >= 1 {
+					// 	fmt.Println("8 hour complete")
+					// }
 				// 24 hours rest complete
 				case 14:
-					if len(col.Children().Nodes) >= 1 {
-						// fmt.Println("24 hour complete")
-					}
+					// if len(col.Children().Nodes) >= 1 {
+					// 	fmt.Println("24 hour complete")
+					// }
 				// status
 				case 15:
 					if len(col.Text()) >= 1 {
@@ -141,19 +141,19 @@ func Scraper() []Musher {
 			musherSlice = append(musherSlice, m)
 			return true
 		})
-		for _, m := range musherSlice {
-			fmt.Printf("%+v\n", m)
-		}
+		// for _, m := range musherSlice {
+		// 	log.Printf("%+v\n", m)
+		// }
 
 	})
 
 	// Before making a request print "Visiting ..."
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL.String())
+		log.Println("Visiting", r.URL.String())
 	})
 
 	c.OnError(func(r *colly.Response, err error) {
-		fmt.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
+		log.Println("Request URL:", r.Request.URL, "failed with response:", r, "\nError:", err)
 	})
 
 	// Start scraping on https://iditarod.com/race/2023/standings/
