@@ -41,11 +41,11 @@ func Scraper() []Musher {
 
 		e.DOM.ChildrenFiltered("tr").EachWithBreak(func(i int, s *goquery.Selection) bool {
 			var m Musher
-			// fmt.Println(i + 1)
+			// log.Println(i + 1)
 
 			// TODO - just add values into a map instead of iterating over each col
 			s.Children().Each(func(idx int, col *goquery.Selection) {
-				// fmt.Printf("%d - %s  |  ", idx, col.Text())
+				// log.Printf("%d - %s  |  ", idx, col.Text())
 				switch idx {
 				// position
 				case 0:
@@ -113,12 +113,12 @@ func Scraper() []Musher {
 				// 8 hour rest complete
 				case 13:
 					// if len(col.Children().Nodes) >= 1 {
-					// 	fmt.Println("8 hour complete")
+					// 	log.Println("8 hour complete")
 					// }
 				// 24 hours rest complete
 				case 14:
 					// if len(col.Children().Nodes) >= 1 {
-					// 	fmt.Println("24 hour complete")
+					// 	log.Println("24 hour complete")
 					// }
 				// status
 				case 15:
