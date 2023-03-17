@@ -9,7 +9,8 @@
       <p><strong>Total Points: {{.PointTotal}}</strong></p>
       <ul class="list-group">
         {{range .Picks}}
-        <li class="list-group-item">
+        <li {{if eq .Status "Scratched" }}class="list-group-item bg-danger-subtle" {{else if (eq .Status "Finished")}} class="list-group-item bg-warning-subtle"{{else}}class="list-group-item bg-primary-subtle"{{end}}>
+        {{/* start rookie */}}
           {{ if .Rookie }}
           <h4 class="fs-6 bg-primary-subtle"><i><strong>Rookie Pick</strong></i></h4>
           <h5>{{.Name}} <span class="fs-6">{{.Bib}}</span></h5>
@@ -23,6 +24,7 @@
           <p class="p-2 text-success-emphasis bg-success-subtle border border-success-subtle rounded-2">
             Points:
             {{ .PointValue}}</p>
+        {{/* end rookie */}}
           {{else}}
           <h5>{{.Name}} <span class="fs-6">{{.Bib}}</span></h5>
           <p><strong>Position:

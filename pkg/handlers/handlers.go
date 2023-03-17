@@ -10,6 +10,7 @@ import (
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	musherData := scraper.Scraper()
+
 	render.RenderTemplate(w, "home.gohtml", musherData)
 }
 func PicksHandler(w http.ResponseWriter, r *http.Request) {
@@ -124,6 +125,7 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 				p.PointValue = d.PointValue
 				p.Position = d.Position
 				points += d.PointValue
+				p.Status = d.Status
 			}
 		}
 		u.PointTotal = points

@@ -23,7 +23,7 @@
   <tbody>
 {{range .}}
 
-    <tr {{if eq .Status "Scratched" }}class="bg-danger-subtle"{{end}}>
+    <tr {{if eq .Status "Scratched" }}class="bg-danger-subtle" {{else if (eq .Status "Finished")}} class="bg-light-subtle"{{end}}>
       <th scope="row">{{if eq .Status "Scratched" }}-{{else}}{{.CurrentPos}}{{end}}</th>
       <td {{if .Rookie}}class="bg-primary-subtle"{{end}}>{{.Name}}</td>
       <td>{{.Bib}}</td>
