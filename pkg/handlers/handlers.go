@@ -11,7 +11,7 @@ import (
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	musherData := scraper.Scraper()
 
-	render.RenderTemplate(w, "home.gohtml", musherData)
+	render.RenderTemplate(w, "home.page.gohtml", musherData)
 }
 func PicksHandler(w http.ResponseWriter, r *http.Request) {
 	type Pick struct {
@@ -147,5 +147,5 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 	sort.Slice(PickData, func(i, j int) bool {
 		return PickData[i].PointTotal > PickData[j].PointTotal
 	})
-	render.RenderTemplate(w, "picks.gohtml", PickData)
+	render.RenderTemplate(w, "picks.page.gohtml", PickData)
 }
