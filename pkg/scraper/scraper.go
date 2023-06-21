@@ -5,37 +5,20 @@ import (
 	"strconv"
 	"strings"
 
+	"mushturd/pkg/models"
+
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gocolly/colly"
 )
 
-type Checkpoint struct {
-	Name    string
-	In      bool
-	DogsIn  int
-	Out     bool
-	DogsOut int
-}
-
-type Musher struct {
-	CurrentPos       int    // 0
-	Name             string //
-	Rookie           bool
-	Bib              int
-	LatestCheckpoint Checkpoint
-	Speed            float32
-	InCheckpoint     bool
-	Status           string // scratched, finished
-}
-
-func Scraper() []Musher {
+func Scraper() []models.Musher {
 	var (
-		finished, racing, scratched, musherData []Musher
+		finished, racing, scratched, musherData []models.Musher
 	)
 
 	// TODO process all rows using a function and each passes into the proper array
 	processRows := func(i int, s *goquery.Selection) bool {
-		var m Musher
+		var m models.Musher
 		// log.Println(i + 1)
 
 		// TODO - just add values into a map instead of iterating over each col
@@ -154,7 +137,7 @@ func Scraper() []Musher {
 		parentAttr, _ := e.DOM.Parent().Attr("class")
 		if strings.Contains(parentAttr, "stats-table-racing") { // racing table
 			e.DOM.ChildrenFiltered("tr").EachWithBreak(func(i int, s *goquery.Selection) bool {
-				var m Musher
+				var m models.Musher
 				// log.Println(i + 1)
 
 				// TODO - just add values into a map instead of iterating over each col
@@ -273,7 +256,7 @@ func Scraper() []Musher {
 
 		} else { // finished table
 			e.DOM.ChildrenFiltered("tr").EachWithBreak(func(i int, s *goquery.Selection) bool {
-				var m Musher
+				var m models.Musher
 				// log.Println(i + 1)
 
 				// TODO - just add values into a map instead of iterating over each col
@@ -399,7 +382,10 @@ func Scraper() []Musher {
 	})
 
 	// Start scraping on https://iditarod.com/race/2023/standings/
-	c.Visit("https://iditarod.com/race/2023/standings/")
+	err := c.Visit("https://iditarod.com/race/2023/standings/")
+	if err != nil {
+		log.Printf("Error Scraping iditarod.com: %v", err)
+	}
 
 	return musherData
 }

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"mushturd/pkg/models"
+	"mushturd/pkg/redis"
 	"mushturd/pkg/scraper"
 	"net/http"
 	"sort"
@@ -9,10 +11,17 @@ import (
 )
 
 func HomeHandler(w http.ResponseWriter, r *http.Request) {
-	musherData := scraper.Scraper()
+	// Define the Redis cache key for the data
+	cacheKey := "musher_data"
 
-	render.RenderTemplate(w, "home.page.gohtml", musherData)
+	mushers, err := redis.GetMushersFromCacheOrAPI(cacheKey, scraper.Scraper)
+	if err != nil {
+		http.Error(w, "Error with cache or fetching data. Look at logs.", http.StatusInternalServerError)
+		return
+	}
+	render.RenderTemplate(w, "home.page.gohtml", mushers)
 }
+
 func PicksHandler(w http.ResponseWriter, r *http.Request) {
 	type Pick struct {
 		Name       string
@@ -29,8 +38,13 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		PointTotal int
 	}
 	// get musher data
-	musherData := scraper.Scraper()
-	topRookie := scraper.Musher{
+	cacheKey := "musher_data"
+	musherData, err := redis.GetMushersFromCacheOrAPI(cacheKey, scraper.Scraper)
+	if err != nil {
+		http.Error(w, "Error with cache or fetching data. Look at logs.", http.StatusInternalServerError)
+		return
+	}
+	topRookie := models.Musher{
 		CurrentPos: 33,
 	}
 	mushersAsPicks := make(map[int]Pick)
@@ -148,4 +162,8 @@ func PicksHandler(w http.ResponseWriter, r *http.Request) {
 		return PickData[i].PointTotal > PickData[j].PointTotal
 	})
 	render.RenderTemplate(w, "picks.page.gohtml", PickData)
+}
+
+func FaviconHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

@@ -28,6 +28,7 @@ func main() {
 	}
 
 	http.HandleFunc("/", handlers.HomeHandler)
+	http.HandleFunc("/favicon.ico", handlers.FaviconHandler)
 	http.HandleFunc("/picks", handlers.PicksHandler)
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		log.Fatal(err)
